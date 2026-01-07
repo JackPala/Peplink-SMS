@@ -25,7 +25,7 @@ body {
 
 /* Sidebar Styles */
 .sidebar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #FFB81C 0%, #F1AD1A 100%);
     color: white;
     display: flex;
     flex-direction: column;
@@ -181,7 +181,7 @@ body {
 .chat-header .contact-avatar {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #FFB81C 0%, #F1AD1A 100%);
 }
 
 .chat-header h6 {
@@ -270,7 +270,7 @@ body {
 }
 
 .message.sent .message-bubble {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #FFB81C 0%, #F1AD1A 100%);
     color: white;
     border-bottom-right-radius: 4px;
 }
@@ -307,8 +307,8 @@ body {
 }
 
 .message-input:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    border-color: #FFB81C;
+    box-shadow: 0 0 0 0.2rem rgba(255, 184, 28, 0.25);
 }
 
 .message-input-area .btn-link {
@@ -321,7 +321,7 @@ body {
 }
 
 .send-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #FFB81C 0%, #F1AD1A 100%);
     border: none;
     border-radius: 50%;
     width: 48px;
@@ -329,13 +329,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 2px 8px rgba(255, 184, 28, 0.4);
     transition: all 0.3s ease;
 }
 
 .send-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 4px 12px rgba(255, 184, 28, 0.6);
 }
 
 .send-btn:active {

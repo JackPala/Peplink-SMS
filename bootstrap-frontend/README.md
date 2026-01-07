@@ -110,7 +110,7 @@ The main gradient colors can be changed in `styles.css`:
 
 ```css
 .sidebar {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #FFB81C 0%, #F1AD1A 100%);
 }
 ```
 
@@ -149,7 +149,7 @@ This project is open source. See the LICENSE file in the root directory.
 
 ## Screenshots
 
-The UI features a purple gradient sidebar with contact avatars, a clean white chat area with message bubbles, and a modern input field at the bottom.
+The UI features a yellow-gold Peplink gradient sidebar with contact avatars, a clean white chat area with message bubbles, and a modern input field at the bottom.
 
 ## Future Enhancements
 
