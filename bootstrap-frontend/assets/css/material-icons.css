@@ -1,0 +1,26 @@
+/* Material Icons using Unicode symbols */
+.material-icons {
+    font-family: 'Material Icons', Arial, sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+}
+
+/* Icon replacements using Unicode */
+.material-icons {
+    font-family: Arial, sans-serif;
+}
+
+/* Specific icon replacements */
+.material-icons:before {
+    font-family: Arial, sans-serif;
+}
+
+/* For better cross-browser support, we'll use text content instead */

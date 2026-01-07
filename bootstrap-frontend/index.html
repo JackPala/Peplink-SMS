@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peplink SMS - Web UI</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Material Design Icons -->
+    <link href="assets/css/material-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container-fluid h-100 p-0">
+        <div class="row g-0 h-100">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="sidebar-header">
+                    <h5 class="mb-0">Messages</h5>
+                    <button class="btn btn-link text-white" id="newMessageBtn">
+                        <span class="material-icons">✏️</span>
+                    </button>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0">
+                            <span class="material-icons">🔍</span>
+                        </span>
+                        <input type="text" class="form-control border-0" placeholder="Search messages" id="searchInput">
+                    </div>
+                </div>
+                
+                <!-- Contacts List -->
+                <div class="contacts-list" id="contactsList">
+                    <div class="contact-item active" data-contact="John Smith" data-phone="+1234567890">
+                        <div class="contact-avatar">
+                            <span class="material-icons">👤</span>
+                        </div>
+                        <div class="contact-info">
+                            <div class="contact-name">John Smith</div>
+                            <div class="contact-preview">Hey, how are you doing?</div>
+                        </div>
+                        <div class="contact-time">2:45 PM</div>
+                    </div>
+                    
+                    <div class="contact-item" data-contact="Sarah Johnson" data-phone="+1234567891">
+                        <div class="contact-avatar">
+                            <span class="material-icons">👤</span>
+                        </div>
+                        <div class="contact-info">
+                            <div class="contact-name">Sarah Johnson</div>
+                            <div class="contact-preview">Thanks for your help!</div>
+                        </div>
+                        <div class="contact-time">1:30 PM</div>
+                    </div>
+                    
+                    <div class="contact-item" data-contact="Mike Davis" data-phone="+1234567892">
+                        <div class="contact-avatar">
+                            <span class="material-icons">👤</span>
+                        </div>
+                        <div class="contact-info">
+                            <div class="contact-name">Mike Davis</div>
+                            <div class="contact-preview">See you tomorrow</div>
+                        </div>
+                        <div class="contact-time">12:15 PM</div>
+                    </div>
+                    
+                    <div class="contact-item" data-contact="Emily Brown" data-phone="+1234567893">
+                        <div class="contact-avatar">
+                            <span class="material-icons">👤</span>
+                        </div>
+                        <div class="contact-info">
+                            <div class="contact-name">Emily Brown</div>
+                            <div class="contact-preview">Got it, thanks!</div>
+                        </div>
+                        <div class="contact-time">11:20 AM</div>
+                    </div>
+                    
+                    <div class="contact-item" data-contact="Robert Wilson" data-phone="+1234567894">
+                        <div class="contact-avatar">
+                            <span class="material-icons">👤</span>
+                        </div>
+                        <div class="contact-info">
+                            <div class="contact-name">Robert Wilson</div>
+                            <div class="contact-preview">Meeting at 3 PM</div>
+                        </div>
+                        <div class="contact-time">10:45 AM</div>
+                    </div>
+                    
+                    <div class="contact-item" data-contact="Lisa Anderson" data-phone="+1234567895">
+                        <div class="contact-avatar">
+                            <span class="material-icons">👤</span>
+                        </div>
+                        <div class="contact-info">
+                            <div class="contact-name">Lisa Anderson</div>
+                            <div class="contact-preview">Perfect! 👍</div>
+                        </div>
+                        <div class="contact-time">9:30 AM</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Chat Area -->
+            <div class="col-md-9 col-lg-10 main-area">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="d-flex align-items-center">
+                        <div class="contact-avatar me-3">
+                            <span class="material-icons">👤</span>
+                        </div>
+                        <div>
+                            <h6 class="mb-0" id="currentContactName">John Smith</h6>
+                            <small class="text-muted" id="currentContactPhone">+1234567890</small>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="btn btn-link text-dark" id="callBtn" title="Call">
+                            <span class="material-icons">📞</span>
+                        </button>
+                        <button class="btn btn-link text-dark" id="infoBtn" title="Info">
+                            <span class="material-icons">ℹ️</span>
+                        </button>
+                        <button class="btn btn-link text-dark" id="moreBtn" title="More">
+                            <span class="material-icons">⋮</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Messages Container -->
+                <div class="messages-container" id="messagesContainer">
+                    <div class="date-divider">
+                        <span>Today</span>
+                    </div>
+                    
+                    <div class="message received">
+                        <div class="message-bubble">
+                            <div class="message-text">Hey, how are you doing?</div>
+                            <div class="message-time">2:45 PM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="message sent">
+                        <div class="message-bubble">
+                            <div class="message-text">I'm doing great! How about you?</div>
+                            <div class="message-time">2:46 PM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="message received">
+                        <div class="message-bubble">
+                            <div class="message-text">Pretty good, thanks for asking!</div>
+                            <div class="message-time">2:47 PM</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Message Input Area -->
+                <div class="message-input-area">
+                    <button class="btn btn-link text-secondary" id="attachBtn" title="Attach">
+                        <span class="material-icons">📎</span>
+                    </button>
+                    <input type="text" class="form-control message-input" id="messageInput" placeholder="Type a message...">
+                    <button class="btn btn-link text-secondary" id="emojiBtn" title="Emoji">
+                        <span class="material-icons">😊</span>
+                    </button>
+                    <button class="btn btn-primary send-btn" id="sendBtn">
+                        <span class="material-icons">➤</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>
