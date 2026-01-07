@@ -24,10 +24,16 @@
                 </div>
                 <div class="sidebar-header">
                     <h5 class="mb-0">Messages</h5>
-                    <button class="btn btn-link text-white" id="newMessageBtn">
-                        <span class="material-icons">✏️</span>
-                    </button>
+                    <div class="sidebar-header-buttons">
+                        <button class="btn btn-link text-white" id="newMessageBtn">
+                            <span class="material-icons">✏️</span>
+                        </button>
+                        <button class="btn btn-link text-white close-sidebar-btn" id="closeSidebarBtn" title="Close">
+                            <span class="material-icons">✖️</span>
+                        </button>
+                    </div>
                 </div>
+                <div class="mobile-chat-actions" id="mobileChatActions"></div>
                 
                 <!-- Search Bar -->
                 <div class="search-bar">
@@ -113,7 +119,10 @@
             <div class="col-md-9 col-lg-10 main-area">
                 <!-- Chat Header -->
                 <div class="chat-header">
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center chat-header-left">
+                        <button class="btn btn-link text-dark mobile-menu-btn" id="sidebarToggleBtn" title="Menu">
+                            <span class="material-icons">☰</span>
+                        </button>
                         <div class="contact-avatar me-3">
                             <span class="material-icons">👤</span>
                         </div>
@@ -122,7 +131,7 @@
                             <small class="text-muted" id="currentContactPhone">+1234567890</small>
                         </div>
                     </div>
-                    <div class="chat-actions">
+                    <div class="chat-actions" id="chatActions">
                         <button class="btn btn-link text-dark" id="infoBtn" title="Info">
                             <span class="material-icons">ℹ️</span>
                         </button>
@@ -145,10 +154,23 @@
                                 </button>
                             </div>
                         </div>
-                        <button class="btn btn-link text-dark" id="moreBtn" title="More">
-                            <span class="material-icons">⋮</span>
-                        </button>
+                        <div class="more-menu">
+                            <button class="btn btn-link text-dark" id="moreBtn" title="More">
+                                <span class="material-icons">⋮</span>
+                            </button>
+                            <div class="more-dropdown" id="moreDropdown">
+                                <button class="dropdown-option" data-action="settings">
+                                    <span class="material-icons">⚙️</span>
+                                    <span>Settings</span>
+                                </button>
+                                <button class="dropdown-option" data-action="logout">
+                                    <span class="material-icons">🚪</span>
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                    <div id="chatActionsDesktopPlaceholder"></div>
                 </div>
                 
                 <!-- Messages Container -->
@@ -195,5 +217,6 @@
     
     <!-- Custom JS -->
     <script src="script.js"></script>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 </body>
 </html>

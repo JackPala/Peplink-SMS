@@ -38,6 +38,7 @@ let currentTheme = 'light'; // 'light', 'dark', or 'auto'
 document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
     setupEventListeners();
+    relocateChatActions();
     loadChatHistory(currentContact);
     scrollToBottom();
 });
@@ -64,6 +65,7 @@ function setupEventListeners() {
             // Load chat history
             loadChatHistory(currentContact);
             scrollToBottom();
+            closeSidebarOnMobile();
         });
     });
     
@@ -107,6 +109,12 @@ function setupEventListeners() {
     
     // Theme toggle
     setupThemeToggle();
+    
+    // More menu dropdown
+    setupMoreMenu();
+
+    // Mobile sidebar toggle
+    setupMobileSidebar();
 }
 
 // Load chat history for a contact
@@ -246,6 +254,10 @@ function scrollToBottom() {
 // Handle window resize
 window.addEventListener('resize', function() {
     scrollToBottom();
+    if (!isMobileView()) {
+        toggleSidebar(false);
+    }
+    relocateChatActions();
 });
 
 // Theme Management Functions
@@ -295,6 +307,120 @@ function setupThemeToggle() {
                 updateThemeUI('auto');
             }
         });
+    }
+}
+
+function setupMoreMenu() {
+    const moreBtn = document.getElementById('moreBtn');
+    const moreDropdown = document.getElementById('moreDropdown');
+    
+    if (!moreBtn || !moreDropdown) return;
+    
+    moreBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        moreDropdown.classList.toggle('show');
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!moreDropdown.contains(e.target) && !moreBtn.contains(e.target)) {
+            moreDropdown.classList.remove('show');
+        }
+    });
+    
+    const optionButtons = moreDropdown.querySelectorAll('.dropdown-option');
+    optionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const action = this.getAttribute('data-action');
+            handleMoreMenuAction(action);
+            moreDropdown.classList.remove('show');
+        });
+    });
+}
+
+function handleMoreMenuAction(action) {
+    if (action === 'settings') {
+        alert('Settings functionality will be implemented here.');
+    } else if (action === 'logout') {
+        alert('Logout functionality will be implemented here.');
+    }
+}
+
+function setupMobileSidebar() {
+    const toggleBtn = document.getElementById('sidebarToggleBtn');
+    const closeBtn = document.getElementById('closeSidebarBtn');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleSidebar();
+        });
+    }
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleSidebar(false);
+        });
+    }
+    
+    if (overlay) {
+        overlay.addEventListener('click', function() {
+            toggleSidebar(false);
+        });
+    }
+}
+
+function toggleSidebar(forceState) {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    if (!sidebar || !overlay) return;
+    
+    const shouldShow = typeof forceState === 'boolean' ? forceState : !sidebar.classList.contains('show');
+    
+    if (shouldShow && !isMobileView()) {
+        return;
+    }
+    
+    if (shouldShow) {
+        sidebar.classList.add('show');
+        overlay.classList.add('show');
+    } else {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+    }
+}
+
+function closeSidebarOnMobile() {
+    if (isMobileView()) {
+        toggleSidebar(false);
+    }
+}
+
+function isMobileView() {
+    return window.innerWidth <= 768;
+}
+
+function relocateChatActions() {
+    const chatActions = document.getElementById('chatActions');
+    const desktopPlaceholder = document.getElementById('chatActionsDesktopPlaceholder');
+    const mobileContainer = document.getElementById('mobileChatActions');
+    
+    if (!chatActions || !desktopPlaceholder || !mobileContainer) {
+        return;
+    }
+    
+    if (isMobileView()) {
+        if (!mobileContainer.contains(chatActions)) {
+            mobileContainer.appendChild(chatActions);
+        }
+    } else {
+        const desktopParent = desktopPlaceholder.parentNode;
+        if (desktopParent && desktopParent !== chatActions.parentNode) {
+            desktopParent.insertBefore(chatActions, desktopPlaceholder);
+        }
     }
 }
 

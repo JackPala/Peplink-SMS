@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  peplink-sms:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: peplink-sms
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    volumes:
+      - peplink_sms_data:/usr/src/app/app/data
+    restart: unless-stopped
+
+volumes:
+  peplink_sms_data:
+    driver: local

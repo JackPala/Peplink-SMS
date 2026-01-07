@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peplink SMS - Setup</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Material Design Icons -->
+    <link href="assets/css/material-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="setup-view">
+    <div class="container-fluid setup-page">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-11 col-md-10 col-lg-8">
+                <div class="setup-card">
+                    <div class="row g-0">
+                        <div class="col-lg-5 setup-info">
+                            <div class="setup-info-content">
+                                <img src="assets/logos/Peplink-SMS-Logo-FULL.webp" alt="Peplink SMS Logo" class="setup-logo img-fluid mb-4">
+                                <h2>Peplink SMS</h2>
+                                <p>Start Managing your Peplink WWAN SMS with this open source tool.</p>
+                                <ul class="setup-benefits">
+                                    <li>Fully Local Control</li>
+                                    <li>Local Only API</li>
+                                    <li>No Intcontrol2 Needed</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-7 setup-form">
+                            <div class="setup-form-header">
+                                <h3>Initial Setup</h3>
+                                <p>Please provide the credentials below to connect your router.</p>
+                            </div>
+                            <form id="setupForm" action="/setup" method="POST">
+                                <div class="mb-3">
+                                    <label for="setupUsername" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="setupUsername" name="setupUsername" placeholder="Enter your username" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="setupPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="setupPassword" name="setupPassword" placeholder="Enter your password" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="routerIp" class="form-label">Router IP</label>
+                                    <input type="text" class="form-control" id="routerIp" name="routerIp" placeholder="e.g., 192.168.50.1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="routerUsername" class="form-label">Router Username</label>
+                                    <input type="text" class="form-control" id="routerUsername" name="routerUsername" placeholder="Router admin username" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="routerPassword" class="form-label">Router Password</label>
+                                    <input type="password" class="form-control" id="routerPassword" name="routerPassword" placeholder="Router admin password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 setup-submit-btn">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
