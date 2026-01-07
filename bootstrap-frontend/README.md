@@ -4,7 +4,7 @@ A modern, responsive web UI for sending and receiving SMS messages through Pepli
 
 ## Features
 
-- **Material Design Interface**: Clean, modern UI with gradient colors and smooth animations
+- **Material Design Interface**: Clean, modern UI with gradient colors and smooth animations using Material Design Icons
 - **Sidebar Navigation**: Quick access to all message conversations with search functionality
 - **Real-time Messaging**: Send and receive messages with instant updates
 - **Contact Management**: View 6 example contacts with avatars and message previews
@@ -12,17 +12,17 @@ A modern, responsive web UI for sending and receiving SMS messages through Pepli
   - Message bubbles with timestamps
   - Sent/received message differentiation
   - Smooth scrolling and animations
-  - Message input with emoji and attachment support
-- **Top Action Bar**: Quick access to call, info, and more options
+  - Message input with attachment support
+- **Top Action Bar**: Quick access to info and more options
 - **Search Functionality**: Filter contacts by name or message content
 - **Responsive Design**: Works on desktop and mobile devices
 
 ## Technologies Used
 
 - **Bootstrap 5.3.2**: For responsive layout and components
+- **Material Design Icons 7.4.47**: Icon font for consistent UI elements
 - **Custom CSS**: Material Design styling with gradient themes
 - **Vanilla JavaScript**: Interactive functionality without heavy frameworks
-- **Material Icons**: Using Unicode emoji for better compatibility
 
 ## File Structure
 
@@ -34,13 +34,18 @@ bootstrap-frontend/
 ├── assets/
 │   ├── css/
 │   │   ├── bootstrap.min.css
-│   │   └── material-icons.css
+│   │   ├── mdi/
+│   │   │   └── materialdesignicons.min.css
+│   │   └── fonts/      # Symlinked font files (gitignored)
 │   ├── js/
 │   │   └── bootstrap.bundle.min.js
 │   └── fonts/
+│       └── fonts/      # Material Design Icons font files
 ├── package.json        # NPM dependencies
 └── README.md          # This file
 ```
+
+**Note:** The `assets/css/fonts/` directory contains symlinks to the actual font files located in `assets/fonts/fonts/`. These symlinks are automatically created relative to the CSS path and are excluded from version control.
 
 ## Getting Started
 
@@ -75,7 +80,7 @@ Then navigate to `http://localhost:8080/index.html`
 ### Sending Messages
 
 1. Type your message in the input field at the bottom
-2. Press Enter or click the send button (➤)
+2. Press Enter or click the send button
 3. Your message appears as a purple bubble on the right
 4. A simulated response appears after 2 seconds (for demo purposes)
 
@@ -87,11 +92,9 @@ Then navigate to `http://localhost:8080/index.html`
 
 ### Additional Actions
 
-- **New Message Button (✏️)**: Create a new conversation
-- **Call Button (📞)**: Initiate a call with the contact
-- **Info Button (ℹ️)**: View contact information
-- **Attach Button (📎)**: Attach files to messages
-- **Emoji Button (😊)**: Add emojis to messages
+- **New Message Button**: Create a new conversation
+- **Info Button**: View contact information
+- **Attach Button**: Attach files to messages
 
 ## Integration with Peplink
 
