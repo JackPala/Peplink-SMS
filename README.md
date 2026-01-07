@@ -40,23 +40,30 @@ Visit http://localhost:3000 to go through the setup screen and continue into the
 
 ## Installation
 
-### Local Node
+Clone once, then pick your preferred runtime. Docker Compose is the quickest path since it builds the backend and serves the UI in one container.
 
 ```bash
-cd app
-npm install
-npm run dev
+git clone https://github.com/JackPala/Peplink-SMS.git
+cd Peplink-SMS
 ```
 
-### Docker Compose
-
-You can run the backend + frontend via Docker using the provided `docker-compose.yml`.
+### Docker Compose (recommended)
 
 ```bash
 docker compose up --build
 ```
 
-The server will listen on http://localhost:3000 (override with `PORT` env). SQLite data is bind-mounted from `./app/data` on your host into the container so credentials persist across restarts.
+This builds the Node backend, serves the Bootstrap UI, and keeps SQLite data under `app/data` on your host. Browse to http://localhost:3000 (or set `PORT`/`VIRTUAL_HOST` if needed).
+
+### Local Node / npm
+
+```bash
+cd app
+npm install
+npm run dev   # or: npm start for production
+```
+
+The Express server listens on http://localhost:3000 by default. SQLite data lives in `app/data/peplink_sms.db`.
 
 ## Usage
 
