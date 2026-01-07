@@ -8,6 +8,12 @@ An Open Source Responsive WebUI for sending and receiving SMS thru Peplink
 
 **IMPORTANT NOTE:** I built this software myself as I wanted to send and receive SMS over Peplink without needing the stock UI to do so. **I am not associated with Peplink in any way, shape, or form, at the time of this writing.**
 
+> If this project keeps your Peplink SMS workflows running smoothly, consider tossing a donation toward hosting, hardware, and future features—thanks for helping the project grow!
+>
+> - [**Donate via PayPal**](https://www.paypal.com/donate/?hosted_button_id=EHQUAKSBLUD9C)
+> - BTC: `3D7wQyEyH8RPUbq2NSZPMobgz6wjenZGM1`
+> - ETH / ERC-20: `0xe48F3160f442436578de146ADFd635Ff622Dff77`
+
 ## Requirements
 
 - A Peplink Router running v8.0.0 or higher
@@ -131,13 +137,3 @@ curl -u admin:changeme \
 ```
 
 Successful requests return `{"message":"SMS sent successfully.","details":{"connId":6,"sentAt":"..."}}`. Any error text from the router will be surfaced in the `message` field.
-
-## Donate
-
-If this project saves you time or keeps your Peplink SMS workflows humming, consider buying me a coffee (or topping up the SIM data fund). Every donation goes right back into hosting costs, hardware, and future features.  
-
-[**Donate via PayPal**](https://www.paypal.com/donate/?hosted_button_id=EHQUAKSBLUD9C)
-
-Prefer crypto? You can also send BTC to: `3D7wQyEyH8RPUbq2NSZPMobgz6wjenZGM1`
-
-ETH (or any ERC-20 token) donations: `0xe48F3160f442436578de146ADFd635Ff622Dff77`
