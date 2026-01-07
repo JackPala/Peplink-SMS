@@ -1,35 +1,17 @@
-// Chat data structure
-const chatHistory = {
-    'John Smith': [
-        { type: 'received', text: 'Hey, how are you doing?', time: '2:45 PM' },
-        { type: 'sent', text: "I'm doing great! How about you?", time: '2:46 PM' },
-        { type: 'received', text: 'Pretty good, thanks for asking!', time: '2:47 PM' }
-    ],
-    'Sarah Johnson': [
-        { type: 'received', text: 'Can you help me with the project?', time: '1:25 PM' },
-        { type: 'sent', text: 'Sure, what do you need?', time: '1:26 PM' },
-        { type: 'received', text: 'Thanks for your help!', time: '1:30 PM' }
-    ],
-    'Mike Davis': [
-        { type: 'sent', text: 'See you at the meeting tomorrow', time: '12:10 PM' },
-        { type: 'received', text: 'See you tomorrow', time: '12:15 PM' }
-    ],
-    'Emily Brown': [
-        { type: 'sent', text: 'I sent you the files', time: '11:15 AM' },
-        { type: 'received', text: 'Got it, thanks!', time: '11:20 AM' }
-    ],
-    'Robert Wilson': [
-        { type: 'received', text: 'Meeting at 3 PM', time: '10:45 AM' },
-        { type: 'sent', text: "I'll be there", time: '10:46 AM' }
-    ],
-    'Lisa Anderson': [
-        { type: 'sent', text: 'How about lunch at noon?', time: '9:25 AM' },
-        { type: 'received', text: 'Perfect! 👍', time: '9:30 AM' }
-    ]
-};
-
-let currentContact = 'John Smith';
-let currentContactPhone = '+1234567890';
+let chatHistory = {};
+let contactsData = [];
+let currentContact = null;
+let currentContactPhone = '';
+let smsPollingIntervalId = null;
+let smsLoadInProgress = false;
+let composeModalEl = null;
+let composeFormEl = null;
+let composePhoneInput = null;
+let composeMessageInput = null;
+let composeErrorEl = null;
+let composeSendBtn = null;
+let composeCancelBtn = null;
+let composeCloseBtn = null;
 
 // Theme Management
 let currentTheme = 'light'; // 'light', 'dark', or 'auto'
@@ -37,37 +19,34 @@ let currentTheme = 'light'; // 'light', 'dark', or 'auto'
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
+    cacheComposeElements();
     setupEventListeners();
     relocateChatActions();
-    loadChatHistory(currentContact);
-    scrollToBottom();
+    loadSmsData()
+        .catch(err => console.error('Initial SMS load failed', err))
+        .finally(() => {
+            smsPollingIntervalId = setInterval(() => {
+                loadSmsData({ background: true }).catch(err => {
+                    console.error('Background SMS refresh failed', err);
+                });
+            }, 15000);
+        });
 });
 
 // Setup event listeners
 function setupEventListeners() {
     // Contact selection
-    const contactItems = document.querySelectorAll('.contact-item');
-    contactItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // Remove active class from all contacts
-            contactItems.forEach(c => c.classList.remove('active'));
-            // Add active class to clicked contact
-            this.classList.add('active');
+    const contactsList = document.getElementById('contactsList');
+    if (contactsList) {
+        contactsList.addEventListener('click', function(event) {
+            const target = event.target.closest('.contact-item');
+            if (!target) {
+                return;
+            }
             
-            // Get contact info
-            currentContact = this.getAttribute('data-contact');
-            currentContactPhone = this.getAttribute('data-phone');
-            
-            // Update header
-            document.getElementById('currentContactName').textContent = currentContact;
-            document.getElementById('currentContactPhone').textContent = currentContactPhone;
-            
-            // Load chat history
-            loadChatHistory(currentContact);
-            scrollToBottom();
-            closeSidebarOnMobile();
+            setActiveContact(target.getAttribute('data-contact'));
         });
-    });
+    }
     
     // Send message button
     document.getElementById('sendBtn').addEventListener('click', sendMessage);
@@ -82,30 +61,38 @@ function setupEventListeners() {
     
     // Search functionality
     document.getElementById('searchInput').addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const contacts = document.querySelectorAll('.contact-item');
-        
-        contacts.forEach(contact => {
-            const name = contact.getAttribute('data-contact').toLowerCase();
-            const preview = contact.querySelector('.contact-preview').textContent.toLowerCase();
-            
-            if (name.includes(searchTerm) || preview.includes(searchTerm)) {
-                contact.style.display = 'flex';
-            } else {
-                contact.style.display = 'none';
-            }
-        });
+        applySearchFilter(e.target.value || '');
     });
     
     // New message button
     document.getElementById('newMessageBtn').addEventListener('click', function() {
-        alert('New message functionality - Would connect to Peplink SMS API');
+        openComposeModal();
     });
     
     // Info button
     document.getElementById('infoBtn').addEventListener('click', function() {
-        alert(`Contact Info:\nName: ${currentContact}\nPhone: ${currentContactPhone}`);
+        if (!currentContact) {
+            alert('Select a contact to view details.');
+            return;
+        }
+        alert(`Contact Info:\nName: ${currentContact}\nPhone: ${currentContactPhone || 'Unknown'}`);
     });
+    
+    if (composeFormEl) {
+        composeFormEl.addEventListener('submit', handleComposeSubmit);
+    }
+    
+    if (composeModalEl) {
+        const cancelBtn = composeCancelBtn;
+        const closeBtn = composeCloseBtn;
+        if (cancelBtn) cancelBtn.addEventListener('click', closeComposeModal);
+        if (closeBtn) closeBtn.addEventListener('click', closeComposeModal);
+        composeModalEl.addEventListener('click', function(event) {
+            if (event.target === composeModalEl) {
+                closeComposeModal();
+            }
+        });
+    }
     
     // Theme toggle
     setupThemeToggle();
@@ -117,22 +104,373 @@ function setupEventListeners() {
     setupMobileSidebar();
 }
 
-// Load chat history for a contact
-function loadChatHistory(contactName) {
+function cacheComposeElements() {
+    composeModalEl = document.getElementById('composeModal');
+    composeFormEl = document.getElementById('composeForm');
+    composePhoneInput = document.getElementById('composePhoneInput');
+    composeMessageInput = document.getElementById('composeMessageInput');
+    composeErrorEl = document.getElementById('composeError');
+    composeSendBtn = document.getElementById('composeSendBtn');
+    composeCancelBtn = document.getElementById('composeCancelBtn');
+    composeCloseBtn = document.getElementById('composeCloseBtn');
+}
+
+async function loadSmsData(options = {}) {
+    const { background = false } = options;
+    
+    if (smsLoadInProgress && background) {
+        return;
+    }
+    smsLoadInProgress = true;
+    
+    const contactsList = document.getElementById('contactsList');
+    const searchInput = document.getElementById('searchInput');
+    const previousSearchTerm = searchInput ? searchInput.value : '';
+    const previousContact = currentContact;
+    
+    if (!background && contactsList) {
+        contactsList.innerHTML = '<div class="empty-state">Loading SMS...</div>';
+    }
+    if (!background) {
+        renderMessagesPlaceholder('Loading SMS from your router...');
+    }
+    
+    try {
+        const response = await fetch(`/api/sms?t=${Date.now()}`);
+        if (!response.ok) {
+            throw new Error(`Server responded with status ${response.status}`);
+        }
+        
+        const payload = await response.json();
+        const conversations = payload.conversations || [];
+        
+        chatHistory = {};
+        contactsData = conversations.map(conversation => {
+            const contactName = conversation.sender || 'Unknown Sender';
+            const normalizedMessages = (conversation.messages || []).map(normalizeMessage);
+            chatHistory[contactName] = normalizedMessages;
+            const defaultConnId = normalizedMessages.length > 0
+                ? normalizedMessages[normalizedMessages.length - 1].connId || null
+                : null;
+            return {
+                name: contactName,
+                phone: contactName,
+                messages: normalizedMessages,
+                defaultConnId
+            };
+        });
+        
+        sortContactsByLatest();
+        renderContactsList();
+        applySearchFilter(previousSearchTerm);
+        
+        if (contactsData.length === 0) {
+            setActiveContact(null);
+        } else if (previousContact && contactsData.some(contact => contact.name === previousContact)) {
+            setActiveContact(previousContact, { preserveScroll: background });
+        } else {
+            setActiveContact(contactsData[0].name);
+        }
+    } catch (error) {
+        if (!background) {
+            if (contactsList) {
+                contactsList.innerHTML = '';
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'empty-state';
+                errorMessage.textContent = `Unable to load SMS (${error.message})`;
+                contactsList.appendChild(errorMessage);
+            }
+            renderMessagesPlaceholder('Unable to load SMS from the router.', error.message);
+            throw error;
+        } else {
+            console.error('Failed to refresh SMS conversations', error);
+        }
+    } finally {
+        smsLoadInProgress = false;
+    }
+}
+
+function renderContactsList() {
+    const contactsList = document.getElementById('contactsList');
+    if (!contactsList) {
+        return;
+    }
+    
+    contactsList.innerHTML = '';
+    
+    if (contactsData.length === 0) {
+        contactsList.innerHTML = '<div class="empty-state">No SMS conversations yet.</div>';
+        return;
+    }
+    
+    contactsData.forEach(contact => {
+        const lastMessage = contact.messages[contact.messages.length - 1];
+        const previewText = lastMessage ? truncateText(lastMessage.text) : 'No messages yet';
+        const previewTime = lastMessage ? formatPreviewTime(lastMessage) : '';
+        
+        const contactItem = document.createElement('div');
+        contactItem.className = 'contact-item';
+        if (currentContact === contact.name) {
+            contactItem.classList.add('active');
+        }
+        contactItem.setAttribute('data-contact', contact.name);
+        contactItem.setAttribute('data-phone', contact.phone);
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'contact-avatar';
+        avatar.innerHTML = '<span class="material-icons">👤</span>';
+        
+        const infoWrapper = document.createElement('div');
+        infoWrapper.className = 'contact-info';
+        
+        const nameEl = document.createElement('div');
+        nameEl.className = 'contact-name';
+        nameEl.textContent = contact.name;
+        
+        const previewEl = document.createElement('div');
+        previewEl.className = 'contact-preview';
+        previewEl.textContent = previewText;
+        
+        const timeEl = document.createElement('div');
+        timeEl.className = 'contact-time';
+        timeEl.textContent = previewTime || '';
+        
+        infoWrapper.appendChild(nameEl);
+        infoWrapper.appendChild(previewEl);
+        
+        contactItem.appendChild(avatar);
+        contactItem.appendChild(infoWrapper);
+        contactItem.appendChild(timeEl);
+        
+        contactsList.appendChild(contactItem);
+    });
+}
+
+function setActiveContact(contactName, options = {}) {
+    const { preserveScroll = false } = options;
+    
+    if (!contactName) {
+        currentContact = null;
+        currentContactPhone = '';
+        updateCurrentContactHeader('No Contact Selected', '');
+        if (contactsData.length === 0) {
+            renderMessagesPlaceholder('No SMS messages were found on the router.');
+        } else {
+            renderMessagesPlaceholder('Select a conversation to view SMS messages.');
+        }
+        return;
+    }
+    
+    const contact = contactsData.find(item => item.name === contactName);
+    if (!contact) {
+        currentContact = null;
+        currentContactPhone = '';
+        updateCurrentContactHeader('No Contact Selected', '');
+        renderMessagesPlaceholder('No SMS messages available for the selected contact.');
+        return;
+    }
+    
+    currentContact = contact.name;
+    currentContactPhone = contact.phone;
+    
+    updateCurrentContactHeader(contact.name, contact.phone);
+    
+    document.querySelectorAll('.contact-item').forEach(item => {
+        item.classList.toggle('active', item.getAttribute('data-contact') === contact.name);
+    });
+    
+    loadChatHistory(contact.name, { preserveScroll });
+    closeSidebarOnMobile();
+}
+
+function normalizeMessage(rawMessage = {}) {
+    const parsedTimestamp = parseMessageTimestamp(rawMessage.timestamp, rawMessage.date);
+    const metadata = buildMessageMetadata(parsedTimestamp);
+    
+    return {
+        id: rawMessage.id || rawMessage.routerMessageId || rawMessage.message_id,
+        type: rawMessage.direction === 'sent' ? 'sent' : 'received',
+        text: rawMessage.content || '',
+        time: metadata.displayTime,
+        dateLabel: metadata.dateLabel,
+        timestamp: parsedTimestamp
+    };
+}
+
+function parseMessageTimestamp(timestamp, dateString) {
+    if (typeof timestamp === 'number') {
+        return timestamp;
+    }
+    
+    if (dateString) {
+        const currentYear = new Date().getFullYear();
+        const withYear = Date.parse(`${dateString} ${currentYear}`);
+        if (!Number.isNaN(withYear)) {
+            return Math.floor(withYear / 1000);
+        }
+        
+        const fallback = Date.parse(dateString);
+        if (!Number.isNaN(fallback)) {
+            return Math.floor(fallback / 1000);
+        }
+    }
+    
+    return null;
+}
+
+function buildMessageMetadata(timestamp) {
+    const date = typeof timestamp === 'number' ? new Date(timestamp * 1000) : new Date();
+    return {
+        displayTime: date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+        dateLabel: date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
+    };
+}
+
+function sortContactsByLatest() {
+    contactsData.sort((a, b) => {
+        const aTimestamp = getContactLatestTimestamp(a);
+        const bTimestamp = getContactLatestTimestamp(b);
+        return (bTimestamp || 0) - (aTimestamp || 0);
+    });
+}
+
+function getContactLatestTimestamp(contact) {
+    if (!contact.messages || contact.messages.length === 0) {
+        return 0;
+    }
+    const lastMessage = contact.messages[contact.messages.length - 1];
+    return lastMessage.timestamp || 0;
+}
+
+function truncateText(text, limit = 40) {
+    if (!text) {
+        return 'No messages yet';
+    }
+    if (text.length <= limit) {
+        return text;
+    }
+    return `${text.substring(0, limit - 3)}...`;
+}
+
+function formatPreviewTime(message) {
+    if (!message) {
+        return '';
+    }
+    
+    const timestampMs = typeof message.timestamp === 'number' ? message.timestamp * 1000 : null;
+    const fallback = message.time || '';
+    
+    if (!timestampMs) {
+        return fallback;
+    }
+    
+    const messageDate = new Date(timestampMs);
+    const now = new Date();
+    
+    const isSameDay = messageDate.toDateString() === now.toDateString();
+    if (isSameDay) {
+        return messageDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    }
+    
+    const isSameYear = messageDate.getFullYear() === now.getFullYear();
+    if (isSameYear) {
+        return messageDate.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+    
+    return messageDate.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function renderMessagesPlaceholder(message, detail) {
     const messagesContainer = document.getElementById('messagesContainer');
+    if (!messagesContainer) {
+        return;
+    }
+    
     messagesContainer.innerHTML = '';
     
-    // Add date divider
-    const dateDivider = document.createElement('div');
-    dateDivider.className = 'date-divider';
-    dateDivider.innerHTML = '<span>Today</span>';
-    messagesContainer.appendChild(dateDivider);
+    const wrapper = document.createElement('div');
+    wrapper.className = 'empty-state-message';
     
-    // Load messages
+    const primaryText = document.createElement('p');
+    primaryText.textContent = message;
+    wrapper.appendChild(primaryText);
+    
+    if (detail) {
+        const detailText = document.createElement('p');
+        detailText.className = 'text-muted';
+        detailText.textContent = detail;
+        wrapper.appendChild(detailText);
+    }
+    
+    messagesContainer.appendChild(wrapper);
+}
+
+function applySearchFilter(searchValue = '') {
+    const normalized = (searchValue || '').toLowerCase();
+    const contacts = document.querySelectorAll('.contact-item');
+    
+    contacts.forEach(contact => {
+        const name = contact.getAttribute('data-contact').toLowerCase();
+        const previewText = contact.querySelector('.contact-preview').textContent.toLowerCase();
+        if (!normalized || name.includes(normalized) || previewText.includes(normalized)) {
+            contact.style.display = 'flex';
+        } else {
+            contact.style.display = 'none';
+        }
+    });
+}
+
+function updateCurrentContactHeader(name, phone) {
+    const nameEl = document.getElementById('currentContactName');
+    const phoneEl = document.getElementById('currentContactPhone');
+    
+    if (nameEl) {
+        nameEl.textContent = name;
+    }
+    
+    if (phoneEl) {
+        phoneEl.textContent = phone || '';
+    }
+}
+
+// Load chat history for a contact
+function loadChatHistory(contactName, options = {}) {
+    const { preserveScroll = false } = options;
+    const messagesContainer = document.getElementById('messagesContainer');
+    if (!messagesContainer) {
+        return;
+    }
+    
+    const previousScrollTop = messagesContainer.scrollTop;
+    const previousHeight = messagesContainer.scrollHeight;
+    
+    messagesContainer.innerHTML = '';
     const messages = chatHistory[contactName] || [];
+    
+    if (messages.length === 0) {
+        renderMessagesPlaceholder('No SMS messages for this contact yet.');
+        return;
+    }
+    
+    let lastDateLabel = null;
     messages.forEach(msg => {
+        if (msg.dateLabel && msg.dateLabel !== lastDateLabel) {
+            const dateDivider = document.createElement('div');
+            dateDivider.className = 'date-divider';
+            dateDivider.innerHTML = `<span>${msg.dateLabel}</span>`;
+            messagesContainer.appendChild(dateDivider);
+            lastDateLabel = msg.dateLabel;
+        }
         addMessageToUI(msg.type, msg.text, msg.time, false);
     });
+    
+    if (preserveScroll) {
+        const newHeight = messagesContainer.scrollHeight;
+        const heightDiff = newHeight - previousHeight;
+        messagesContainer.scrollTop = previousScrollTop + Math.max(heightDiff, 0);
+    } else {
+        scrollToBottom();
+    }
 }
 
 // Add message to UI
@@ -151,7 +489,7 @@ function addMessageToUI(type, text, time, animate = true) {
     
     const messageTime = document.createElement('div');
     messageTime.className = 'message-time';
-    messageTime.textContent = time;
+    messageTime.textContent = time || '';
     
     messageBubble.appendChild(messageText);
     messageBubble.appendChild(messageTime);
@@ -165,87 +503,203 @@ function addMessageToUI(type, text, time, animate = true) {
 }
 
 // Send message
-function sendMessage() {
+async function sendMessage() {
     const input = document.getElementById('messageInput');
     const text = input.value.trim();
     
     if (text === '') return;
     
-    // Get current time
-    const now = new Date();
-    const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-    
-    // Add message to chat history
-    if (!chatHistory[currentContact]) {
-        chatHistory[currentContact] = [];
+    if (!currentContact || !currentContactPhone) {
+        alert('Select a contact before composing a message.');
+        input.value = '';
+        input.focus();
+        return;
     }
-    chatHistory[currentContact].push({ type: 'sent', text: text, time: time });
     
-    // Add message to UI
-    addMessageToUI('sent', text, time, true);
+    const connId = getConversationConnectionId(currentContact);
+    const sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) sendBtn.disabled = true;
     
-    // Clear input
-    input.value = '';
-    
-    // Focus back on input
-    input.focus();
-    
-    // Update contact preview
-    updateContactPreview(currentContact, text, time);
-    
-    // Simulate received message after a delay (for demo purposes)
-    setTimeout(() => {
-        simulateReceivedMessage();
-    }, 2000);
+    try {
+        appendLocalMessage(currentContact, currentContactPhone, text, 'sent', { connId });
+        input.value = '';
+        await sendSmsRequest({
+            recipient: currentContactPhone,
+            content: text,
+            connId
+        });
+        await loadSmsData({ background: true });
+    } catch (error) {
+        alert(error.message || 'Failed to send SMS.');
+        await loadSmsData({ background: false });
+    } finally {
+        if (sendBtn) sendBtn.disabled = false;
+        input.focus();
+    }
 }
 
-// Update contact preview in sidebar
-function updateContactPreview(contactName, text, time) {
-    const contacts = document.querySelectorAll('.contact-item');
-    contacts.forEach(contact => {
-        if (contact.getAttribute('data-contact') === contactName) {
-            const preview = contact.querySelector('.contact-preview');
-            const timeEl = contact.querySelector('.contact-time');
-            
-            preview.textContent = text;
-            timeEl.textContent = time;
-            
-            // Move contact to top (optional)
-            const contactsList = document.getElementById('contactsList');
-            contactsList.insertBefore(contact, contactsList.firstChild);
+function getConversationConnectionId(contactName) {
+    const contact = contactsData.find(item => item.name === contactName);
+    if (!contact) {
+        return null;
+    }
+    if (contact.defaultConnId) {
+        return contact.defaultConnId;
+    }
+    const lastMessage = contact.messages[contact.messages.length - 1];
+    return lastMessage ? lastMessage.connId || null : null;
+}
+
+function appendLocalMessage(contactName, phone, text, type, options = {}) {
+    const timestampSeconds = Math.floor(Date.now() / 1000);
+    const metadata = buildMessageMetadata(timestampSeconds);
+    const message = {
+        id: Date.now(),
+        type,
+        text,
+        time: metadata.displayTime,
+        dateLabel: metadata.dateLabel,
+        timestamp: timestampSeconds,
+        connId: options.connId || null,
+        simId: options.simId || null
+    };
+    
+    if (!chatHistory[contactName]) {
+        chatHistory[contactName] = [];
+    }
+    chatHistory[contactName].push(message);
+    
+    let contact = contactsData.find(item => item.name === contactName);
+    if (!contact) {
+        contact = {
+            name: contactName,
+            phone: phone || contactName,
+            messages: [],
+            defaultConnId: options.connId || null
+        };
+        contactsData.push(contact);
+    }
+    contact.messages.push({ ...message });
+    if (!contact.defaultConnId && options.connId) {
+        contact.defaultConnId = options.connId;
+    }
+    
+    sortContactsByLatest();
+    renderContactsList();
+    const searchInput = document.getElementById('searchInput');
+    applySearchFilter(searchInput ? searchInput.value : '');
+    
+    if (currentContact === contactName) {
+        loadChatHistory(contactName);
+    }
+}
+
+function openComposeModal() {
+    if (!composeModalEl) return;
+    if (composeFormEl) {
+        composeFormEl.reset();
+    }
+    if (composeErrorEl) {
+        composeErrorEl.textContent = '';
+    }
+    composeModalEl.classList.add('show');
+    if (composePhoneInput) {
+        composePhoneInput.focus();
+    }
+}
+
+function closeComposeModal() {
+    if (!composeModalEl) return;
+    composeModalEl.classList.remove('show');
+    if (composeFormEl) {
+        composeFormEl.reset();
+    }
+    if (composeErrorEl) {
+        composeErrorEl.textContent = '';
+    }
+}
+
+async function handleComposeSubmit(event) {
+    event.preventDefault();
+    if (!composePhoneInput || !composeMessageInput) {
+        return;
+    }
+    
+    const phone = composePhoneInput.value.trim();
+    const message = composeMessageInput.value.trim();
+    
+    if (!phone || !message) {
+        if (composeErrorEl) {
+            composeErrorEl.textContent = 'Phone number and message are required.';
         }
+        return;
+    }
+    
+    if (!phone.startsWith('+')) {
+        if (composeErrorEl) {
+            composeErrorEl.textContent = 'Phone number must include the country code (e.g., +1234567890).';
+        }
+        return;
+    }
+    
+    setComposeLoading(true);
+    try {
+        await sendSmsRequest({
+            recipient: phone,
+            content: message
+        });
+        closeComposeModal();
+        await loadSmsData({ background: false });
+        setActiveContact(phone);
+    } catch (error) {
+        if (composeErrorEl) {
+            composeErrorEl.textContent = error.message || 'Failed to send SMS.';
+        }
+    } finally {
+        setComposeLoading(false);
+    }
+}
+
+function setComposeLoading(isLoading) {
+    if (composeSendBtn) {
+        composeSendBtn.disabled = isLoading;
+    }
+    if (composeCancelBtn) {
+        composeCancelBtn.disabled = isLoading;
+    }
+    if (composeCloseBtn) {
+        composeCloseBtn.disabled = isLoading;
+    }
+}
+
+async function sendSmsRequest(payload) {
+    const response = await fetch('/api/sms/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
     });
+    
+    let data = {};
+    try {
+        data = await response.json();
+    } catch (err) {
+        data = {};
+    }
+    
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to send SMS.');
+    }
+    
+    return data;
 }
-
-// Simulate receiving a message (for demo)
-function simulateReceivedMessage() {
-    const responses = [
-        "That's great!",
-        "Got it, thanks!",
-        "Sure thing!",
-        "Sounds good to me!",
-        "Perfect! 👍",
-        "I'll check that out",
-        "Thanks for letting me know"
-    ];
-    
-    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-    const now = new Date();
-    const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-    
-    // Add to chat history
-    chatHistory[currentContact].push({ type: 'received', text: randomResponse, time: time });
-    
-    // Add to UI
-    addMessageToUI('received', randomResponse, time, true);
-    
-    // Update contact preview
-    updateContactPreview(currentContact, randomResponse, time);
-}
-
 // Scroll to bottom of messages
 function scrollToBottom() {
     const messagesContainer = document.getElementById('messagesContainer');
+    if (!messagesContainer) {
+        return;
+    }
     setTimeout(() => {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }, 100);

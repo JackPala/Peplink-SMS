@@ -3,7 +3,8 @@ const express = require('express');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const bcrypt = require('bcryptjs');
-const { getSettings, saveSettings } = require('./db');
+const { getSettings, saveSettings, getSmsConversations } = require('./db');
+const { runInitialRouterSetup, syncSmsFromRouter, sendSmsMessage } = require('./peplinkService');
 
 dotenv.config();
 
@@ -41,7 +42,9 @@ app.get('/setup', async (req, res, next) => {
     }
 });
 
-app.post('/setup', async (req, res, next) => {
+app.post('/setup', async (req, res) => {
+    let settingsPersisted = false;
+    
     try {
         const {
             setupUsername,
@@ -64,10 +67,26 @@ app.post('/setup', async (req, res, next) => {
             router_username: routerUsername,
             router_password: routerPassword
         });
+        settingsPersisted = true;
         
+        await runInitialRouterSetup();
         res.redirect('/');
     } catch (error) {
-        next(error);
+        console.error('Setup failed', error);
+        
+        if (settingsPersisted) {
+            saveSettings({
+                api_auth_mode: 'token',
+                api_client_id: null,
+                api_client_secret: null,
+                api_access_token: null,
+                api_token_expires_at: null
+            }).catch(cleanupErr => {
+                console.error('Failed to reset API credentials after setup error', cleanupErr);
+            });
+        }
+        
+        res.status(500).send(error.message || 'Failed to complete setup process.');
     }
 });
 
@@ -86,6 +105,66 @@ app.get('/api/settings', async (req, res, next) => {
         });
     } catch (error) {
         next(error);
+    }
+});
+
+app.get('/api/sms', async (req, res, next) => {
+    try {
+        if (!isSetupComplete(req.appSettings)) {
+            return res.status(400).json({ message: 'Application is not configured yet.' });
+        }
+        
+        const shouldRefresh = req.query.refresh !== 'false';
+        let syncSummary = null;
+        let syncError = null;
+        let syncTimestamp = null;
+        
+        if (shouldRefresh) {
+            try {
+                syncSummary = await syncSmsFromRouter();
+                syncTimestamp = new Date().toISOString();
+            } catch (syncErr) {
+                syncError = syncErr.message || 'Failed to synchronize SMS from the router.';
+                console.error('SMS sync failed', syncErr);
+            }
+        }
+        
+        const conversations = await getSmsConversations();
+        res.json({
+            conversations,
+            syncSummary,
+            syncError,
+            syncTimestamp
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+app.post('/api/sms/send', async (req, res) => {
+    try {
+        if (!isSetupComplete(req.appSettings)) {
+            return res.status(400).json({ message: 'Application is not configured yet.' });
+        }
+
+        const { recipient, content, connId } = req.body || {};
+        if (!recipient || !content) {
+            return res.status(400).json({ message: 'Recipient and message content are required.' });
+        }
+
+        const result = await sendSmsMessage({
+            recipient: recipient.trim(),
+            content: content.trim(),
+            connId: connId ? Number(connId) : undefined
+        });
+
+        res.json({
+            message: 'SMS sent successfully.',
+            details: result
+        });
+    } catch (error) {
+        console.error('Failed to send SMS', error);
+        res.status(500).json({ message: error.message || 'Failed to send SMS via router.' });
     }
 });
 
@@ -114,19 +193,20 @@ function loadSettings(req, res, next) {
 
 function handleSetupFlow(req, res, next) {
     const settings = req.appSettings;
+    const setupComplete = isSetupComplete(settings);
     const isSetupRoute = req.path === '/setup';
     const isSetupMethodAllowed = isSetupRoute && (req.method === 'GET' || req.method === 'POST');
-    const isStaticRequestDuringSetup = !settings && isStaticAssetRequest(req);
+    const isStaticRequestDuringSetup = !setupComplete && isStaticAssetRequest(req);
     const isHealthCheck = req.path === '/health';
     
-    if (!settings) {
+    if (!setupComplete) {
         if (isSetupMethodAllowed || isStaticRequestDuringSetup || isHealthCheck) {
             return next();
         }
         return res.redirect('/setup');
     }
     
-    if (settings && isSetupRoute && req.method === 'GET') {
+    if (setupComplete && isSetupRoute && req.method === 'GET') {
         return res.redirect('/');
     }
     
@@ -135,7 +215,7 @@ function handleSetupFlow(req, res, next) {
 
 function requireBasicAuth(req, res, next) {
     const settings = req.appSettings;
-    if (!settings) {
+    if (!isSetupComplete(settings)) {
         return next();
     }
     
@@ -198,6 +278,31 @@ function requireBasicAuth(req, res, next) {
 function challenge(res) {
     res.set('WWW-Authenticate', `Basic realm="${BASIC_REALM}", charset="UTF-8"`);
     return res.status(401).send('Authentication required');
+}
+
+function isSetupComplete(settings) {
+    if (!settings) {
+        return false;
+    }
+    
+    const baseFields = [
+        'username',
+        'password',
+        'router_ip',
+        'router_username',
+        'router_password'
+    ];
+    
+    if (!baseFields.every(field => Boolean(settings[field]))) {
+        return false;
+    }
+    
+    const mode = (settings.api_auth_mode || 'token').toLowerCase();
+    if (mode === 'session') {
+        return true;
+    }
+    
+    return Boolean(settings.api_client_id && settings.api_client_secret && settings.api_access_token);
 }
 
 function isStaticAssetRequest(req) {

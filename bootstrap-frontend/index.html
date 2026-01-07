@@ -47,71 +47,7 @@
                 
                 <!-- Contacts List -->
                 <div class="contacts-list" id="contactsList">
-                    <div class="contact-item active" data-contact="John Smith" data-phone="+1234567890">
-                        <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
-                        </div>
-                        <div class="contact-info">
-                            <div class="contact-name">John Smith</div>
-                            <div class="contact-preview">Hey, how are you doing?</div>
-                        </div>
-                        <div class="contact-time">2:45 PM</div>
-                    </div>
-                    
-                    <div class="contact-item" data-contact="Sarah Johnson" data-phone="+1234567891">
-                        <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
-                        </div>
-                        <div class="contact-info">
-                            <div class="contact-name">Sarah Johnson</div>
-                            <div class="contact-preview">Thanks for your help!</div>
-                        </div>
-                        <div class="contact-time">1:30 PM</div>
-                    </div>
-                    
-                    <div class="contact-item" data-contact="Mike Davis" data-phone="+1234567892">
-                        <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
-                        </div>
-                        <div class="contact-info">
-                            <div class="contact-name">Mike Davis</div>
-                            <div class="contact-preview">See you tomorrow</div>
-                        </div>
-                        <div class="contact-time">12:15 PM</div>
-                    </div>
-                    
-                    <div class="contact-item" data-contact="Emily Brown" data-phone="+1234567893">
-                        <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
-                        </div>
-                        <div class="contact-info">
-                            <div class="contact-name">Emily Brown</div>
-                            <div class="contact-preview">Got it, thanks!</div>
-                        </div>
-                        <div class="contact-time">11:20 AM</div>
-                    </div>
-                    
-                    <div class="contact-item" data-contact="Robert Wilson" data-phone="+1234567894">
-                        <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
-                        </div>
-                        <div class="contact-info">
-                            <div class="contact-name">Robert Wilson</div>
-                            <div class="contact-preview">Meeting at 3 PM</div>
-                        </div>
-                        <div class="contact-time">10:45 AM</div>
-                    </div>
-                    
-                    <div class="contact-item" data-contact="Lisa Anderson" data-phone="+1234567895">
-                        <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
-                        </div>
-                        <div class="contact-info">
-                            <div class="contact-name">Lisa Anderson</div>
-                            <div class="contact-preview">Perfect! 👍</div>
-                        </div>
-                        <div class="contact-time">9:30 AM</div>
-                    </div>
+                    <div class="empty-state">Loading SMS...</div>
                 </div>
             </div>
             
@@ -127,8 +63,8 @@
                             <span class="material-icons">👤</span>
                         </div>
                         <div>
-                            <h6 class="mb-0" id="currentContactName">John Smith</h6>
-                            <small class="text-muted" id="currentContactPhone">+1234567890</small>
+                            <h6 class="mb-0" id="currentContactName">No Contact Selected</h6>
+                            <small class="text-muted" id="currentContactPhone"></small>
                         </div>
                     </div>
                     <div class="chat-actions" id="chatActions">
@@ -175,29 +111,8 @@
                 
                 <!-- Messages Container -->
                 <div class="messages-container" id="messagesContainer">
-                    <div class="date-divider">
-                        <span>Today</span>
-                    </div>
-                    
-                    <div class="message received">
-                        <div class="message-bubble">
-                            <div class="message-text">Hey, how are you doing?</div>
-                            <div class="message-time">2:45 PM</div>
-                        </div>
-                    </div>
-                    
-                    <div class="message sent">
-                        <div class="message-bubble">
-                            <div class="message-text">I'm doing great! How about you?</div>
-                            <div class="message-time">2:46 PM</div>
-                        </div>
-                    </div>
-                    
-                    <div class="message received">
-                        <div class="message-bubble">
-                            <div class="message-text">Pretty good, thanks for asking!</div>
-                            <div class="message-time">2:47 PM</div>
-                        </div>
+                    <div class="empty-state-message">
+                        <p>Select a conversation to display your SMS messages.</p>
                     </div>
                 </div>
                 
@@ -209,6 +124,32 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+    
+    <div class="compose-modal" id="composeModal">
+        <div class="compose-modal-dialog">
+            <div class="compose-modal-header">
+                <h5>New Message</h5>
+                <button type="button" class="btn-close" id="composeCloseBtn" aria-label="Close">&times;</button>
+            </div>
+            <form id="composeForm">
+                <div class="compose-modal-body">
+                    <div class="mb-3">
+                        <label for="composePhoneInput" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="composePhoneInput" placeholder="+1234567890" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="composeMessageInput" class="form-label">Message</label>
+                        <textarea class="form-control" id="composeMessageInput" rows="3" placeholder="Type your message..." required></textarea>
+                    </div>
+                    <div class="compose-error text-danger" id="composeError"></div>
+                </div>
+                <div class="compose-modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" id="composeCancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="composeSendBtn">Send</button>
+                </div>
+            </form>
         </div>
     </div>
     
