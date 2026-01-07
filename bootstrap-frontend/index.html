@@ -9,7 +9,7 @@
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Material Design Icons -->
-    <link href="assets/css/material-icons.css" rel="stylesheet">
+    <link href="assets/css/mdi/materialdesignicons.min.css" rel="stylesheet">
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
@@ -22,7 +22,7 @@
                 <div class="sidebar-header">
                     <h5 class="mb-0">Messages</h5>
                     <button class="btn btn-link text-white" id="newMessageBtn">
-                        <span class="material-icons">✏️</span>
+                        <i class="mdi mdi-pencil"></i>
                     </button>
                 </div>
                 
@@ -30,7 +30,7 @@
                 <div class="search-bar">
                     <div class="input-group">
                         <span class="input-group-text bg-transparent border-0">
-                            <span class="material-icons">🔍</span>
+                            <i class="mdi mdi-magnify"></i>
                         </span>
                         <input type="text" class="form-control border-0" placeholder="Search messages" id="searchInput">
                     </div>
@@ -40,7 +40,7 @@
                 <div class="contacts-list" id="contactsList">
                     <div class="contact-item active" data-contact="John Smith" data-phone="+1234567890">
                         <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
+                            <i class="mdi mdi-account"></i>
                         </div>
                         <div class="contact-info">
                             <div class="contact-name">John Smith</div>
@@ -51,7 +51,7 @@
                     
                     <div class="contact-item" data-contact="Sarah Johnson" data-phone="+1234567891">
                         <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
+                            <i class="mdi mdi-account"></i>
                         </div>
                         <div class="contact-info">
                             <div class="contact-name">Sarah Johnson</div>
@@ -62,7 +62,7 @@
                     
                     <div class="contact-item" data-contact="Mike Davis" data-phone="+1234567892">
                         <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
+                            <i class="mdi mdi-account"></i>
                         </div>
                         <div class="contact-info">
                             <div class="contact-name">Mike Davis</div>
@@ -73,7 +73,7 @@
                     
                     <div class="contact-item" data-contact="Emily Brown" data-phone="+1234567893">
                         <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
+                            <i class="mdi mdi-account"></i>
                         </div>
                         <div class="contact-info">
                             <div class="contact-name">Emily Brown</div>
@@ -84,7 +84,7 @@
                     
                     <div class="contact-item" data-contact="Robert Wilson" data-phone="+1234567894">
                         <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
+                            <i class="mdi mdi-account"></i>
                         </div>
                         <div class="contact-info">
                             <div class="contact-name">Robert Wilson</div>
@@ -95,7 +95,7 @@
                     
                     <div class="contact-item" data-contact="Lisa Anderson" data-phone="+1234567895">
                         <div class="contact-avatar">
-                            <span class="material-icons">👤</span>
+                            <i class="mdi mdi-account"></i>
                         </div>
                         <div class="contact-info">
                             <div class="contact-name">Lisa Anderson</div>
@@ -112,7 +112,7 @@
                 <div class="chat-header">
                     <div class="d-flex align-items-center">
                         <div class="contact-avatar me-3">
-                            <span class="material-icons">👤</span>
+                            <i class="mdi mdi-account"></i>
                         </div>
                         <div>
                             <h6 class="mb-0" id="currentContactName">John Smith</h6>
@@ -120,14 +120,11 @@
                         </div>
                     </div>
                     <div class="chat-actions">
-                        <button class="btn btn-link text-dark" id="callBtn" title="Call">
-                            <span class="material-icons">📞</span>
-                        </button>
                         <button class="btn btn-link text-dark" id="infoBtn" title="Info">
-                            <span class="material-icons">ℹ️</span>
+                            <i class="mdi mdi-information"></i>
                         </button>
                         <button class="btn btn-link text-dark" id="moreBtn" title="More">
-                            <span class="material-icons">⋮</span>
+                            <i class="mdi mdi-dots-vertical"></i>
                         </button>
                     </div>
                 </div>
@@ -163,14 +160,11 @@
                 <!-- Message Input Area -->
                 <div class="message-input-area">
                     <button class="btn btn-link text-secondary" id="attachBtn" title="Attach">
-                        <span class="material-icons">📎</span>
+                        <i class="mdi mdi-paperclip"></i>
                     </button>
                     <input type="text" class="form-control message-input" id="messageInput" placeholder="Type a message...">
-                    <button class="btn btn-link text-secondary" id="emojiBtn" title="Emoji">
-                        <span class="material-icons">😊</span>
-                    </button>
                     <button class="btn btn-primary send-btn" id="sendBtn">
-                        <span class="material-icons">➤</span>
+                        <i class="mdi mdi-send"></i>
                     </button>
                 </div>
             </div>
