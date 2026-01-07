@@ -341,7 +341,7 @@ function handleMoreMenuAction(action) {
     if (action === 'settings') {
         alert('Settings functionality will be implemented here.');
     } else if (action === 'logout') {
-        alert('Logout functionality will be implemented here.');
+        window.location.href = '/logout';
     }
 }
 

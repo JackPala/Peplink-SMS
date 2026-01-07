@@ -5,3 +5,8 @@ app/data/*.db
 app/data/*.sqlite
 app/data/*.sqlite3
 app/data/*.db3
+app/data/*.db-journal
+app/data/*.sqlite-journal
+app/data/*.sqlite-shm
+app/data/*.sqlite-wal
+npm-debug.log*

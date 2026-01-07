@@ -48,8 +48,13 @@ You can run the backend + frontend via Docker using the provided `docker-compose
 docker compose up --build
 ```
 
-The server will listen on http://localhost:3000 (override with `PORT` env). The SQLite database is stored in the `peplink_sms_data` Docker volume for persistence.
+The server will listen on http://localhost:3000 (override with `PORT` env). SQLite data is bind-mounted from `./app/data` on your host into the container so credentials persist across restarts.
 
 ## Usage
+
+- Visit http://localhost:3000. If the SQLite database has no setup entry, you'll be redirected to `/setup` to enter the required Peplink + login credentials.
+- After submitting the form, the app stores the router info plus a hashed login password, then challenges you with HTTP Basic Auth. Use the same username/password you just created.
+- Once authenticated you land on the messaging UI (`index.html`). Use the ⋮ menu’s Logout option to terminate the HTTP Basic session (browser will show the login prompt again).
+- Health checks live at `/health`, and your saved metadata (sans passwords) can be viewed with an authenticated call to `/api/settings`.
 
 ## Donate

@@ -12,9 +12,7 @@ services:
       - PORT=3000
       - NODE_ENV=production
     volumes:
-      - peplink_sms_data:/usr/src/app/app/data
+      - ./app/data:/usr/src/app/app/data
     restart: unless-stopped
 
-volumes:
-  peplink_sms_data:
-    driver: local
+volumes: {}
