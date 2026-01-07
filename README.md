@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="bootstrap-frontend/assets/logos/Peplink-SMS-Logo FULL.png" alt="Peplink SMS Logo" width="600">
+  <img src="bootstrap-frontend/assets/logos/Peplink-SMS-Logo-FULL.png" alt="Peplink SMS Logo" width="600">
 </div>
 
 # Peplink-SMS
