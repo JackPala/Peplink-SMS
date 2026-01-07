@@ -17,9 +17,8 @@ An Open Source Responsive WebUI for sending and receiving SMS thru Peplink
 ## Bootstrap Frontend
 
 <picture>
-  <source srcset="https://github.com/user-attachments/assets/b9021107-7b2f-4ded-babd-8db485770b72" type="image/webp">
-  <source srcset="https://github.com/user-attachments/assets/b9021107-7b2f-4ded-babd-8db485770b72" type="image/png">
-  <img src="https://github.com/user-attachments/assets/b9021107-7b2f-4ded-babd-8db485770b72" alt="Peplink SMS Bootstrap Frontend UI" width="800">
+  <source srcset="bootstrap-frontend/assets/screenshots/bootstrap-frontend-ui.png" type="image/png">
+  <img src="bootstrap-frontend/assets/screenshots/bootstrap-frontend-ui.png" alt="Peplink SMS Bootstrap Frontend UI" width="800">
 </picture>
 
 ## Node Application
