@@ -37,10 +37,10 @@ cd Peplink-SMS
 ### Docker Compose (recommended)
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
 
-This builds the Node backend, serves the Bootstrap UI, and keeps SQLite data under `app/data` on your host. Browse to http://localhost:3000 (or set `PORT`/`VIRTUAL_HOST` if needed).
+This builds the Node backend, serves the Bootstrap UI, and keeps SQLite data under `app/data` on your host. Browse to http://localhost:3000 (or `http://<host-ip>:3000`; override with `PORT` if needed).
 
 ### Local Node / npm
 
@@ -50,7 +50,7 @@ npm install
 npm run dev   # or: npm start for production
 ```
 
-The Express server listens on http://localhost:3000 by default. SQLite data lives in `app/data/peplink_sms.db`.
+The Express server listens on http://localhost:3000 by default (reachable via `http://<host-ip>:3000` from LAN devices). SQLite data lives in `app/data/peplink_sms.db`.
 
 ## Usage
 
