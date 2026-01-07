@@ -24,19 +24,6 @@ An Open Source Responsive WebUI for sending and receiving SMS thru Peplink
 
 <img src="bootstrap-frontend/assets/screenshots/bootstrap-frontend-ui.png" alt="Peplink SMS Bootstrap Frontend UI" width="800">
 
-## Node Application
-
-`/app` contains an Express + SQLite server that serves the finished frontend and persists the router setup information collected on the `setup.html` page. To run it locally:
-
-```bash
-cd app
-npm install
-npm run dev
-```
-
-Visit http://localhost:3000 to go through the setup screen and continue into the messaging UI. The SQLite database lives under `app/data/peplink_sms.db` and is ignored by Git.
-
-## Purpose
 
 ## Installation
 
