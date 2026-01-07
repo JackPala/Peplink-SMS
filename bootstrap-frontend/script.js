@@ -31,8 +31,12 @@ const chatHistory = {
 let currentContact = 'John Smith';
 let currentContactPhone = '+1234567890';
 
+// Theme Management
+let currentTheme = 'light'; // 'light', 'dark', or 'auto'
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
+    initializeTheme();
     setupEventListeners();
     loadChatHistory(currentContact);
     scrollToBottom();
@@ -115,6 +119,9 @@ function setupEventListeners() {
     document.getElementById('emojiBtn').addEventListener('click', function() {
         alert('Emoji picker would be shown here');
     });
+    
+    // Theme toggle
+    setupThemeToggle();
 }
 
 // Load chat history for a contact
@@ -255,3 +262,94 @@ function scrollToBottom() {
 window.addEventListener('resize', function() {
     scrollToBottom();
 });
+
+// Theme Management Functions
+function initializeTheme() {
+    // Get saved theme preference or default to 'auto'
+    const savedTheme = localStorage.getItem('theme') || 'auto';
+    currentTheme = savedTheme;
+    applyTheme(savedTheme);
+    updateThemeUI(savedTheme);
+}
+
+function setupThemeToggle() {
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeDropdown = document.getElementById('themeDropdown');
+    const themeOptions = document.querySelectorAll('.theme-option');
+    
+    // Toggle dropdown
+    themeToggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        themeDropdown.classList.toggle('show');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!themeToggleBtn.contains(e.target) && !themeDropdown.contains(e.target)) {
+            themeDropdown.classList.remove('show');
+        }
+    });
+    
+    // Theme option selection
+    themeOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const selectedTheme = this.getAttribute('data-theme');
+            currentTheme = selectedTheme;
+            localStorage.setItem('theme', selectedTheme);
+            applyTheme(selectedTheme);
+            updateThemeUI(selectedTheme);
+            themeDropdown.classList.remove('show');
+        });
+    });
+    
+    // Listen for system theme changes when in auto mode
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+            if (currentTheme === 'auto') {
+                applyTheme('auto');
+            }
+        });
+    }
+}
+
+function applyTheme(theme) {
+    const root = document.documentElement;
+    
+    if (theme === 'auto') {
+        // Check system preference
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+            root.setAttribute('data-theme', 'dark');
+        } else {
+            root.removeAttribute('data-theme');
+        }
+    } else if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+    } else {
+        root.removeAttribute('data-theme');
+    }
+}
+
+function updateThemeUI(theme) {
+    const themeIcon = document.getElementById('themeIcon');
+    const themeOptions = document.querySelectorAll('.theme-option');
+    
+    // Update icon based on current theme
+    if (theme === 'auto') {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        themeIcon.textContent = prefersDark ? '🌙' : '☀️';
+    } else if (theme === 'dark') {
+        themeIcon.textContent = '🌙';
+    } else {
+        themeIcon.textContent = '☀️';
+    }
+    
+    // Update active state in dropdown
+    themeOptions.forEach(option => {
+        if (option.getAttribute('data-theme') === theme) {
+            option.classList.add('active');
+        } else {
+            option.classList.remove('active');
+        }
+    });
+}
