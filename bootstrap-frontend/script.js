@@ -304,7 +304,7 @@ function setupThemeToggle() {
     
     // Listen for system theme changes when in auto mode
     if (window.matchMedia) {
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
             if (currentTheme === 'auto') {
                 applyTheme('auto');
             }
@@ -317,7 +317,7 @@ function applyTheme(theme) {
     
     if (theme === 'auto') {
         // Check system preference
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const prefersDark = getSystemThemePreference();
         if (prefersDark) {
             root.setAttribute('data-theme', 'dark');
         } else {
@@ -336,7 +336,7 @@ function updateThemeUI(theme) {
     
     // Update icon based on current theme
     if (theme === 'auto') {
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const prefersDark = getSystemThemePreference();
         themeIcon.textContent = prefersDark ? '🌙' : '☀️';
     } else if (theme === 'dark') {
         themeIcon.textContent = '🌙';
@@ -352,4 +352,8 @@ function updateThemeUI(theme) {
             option.classList.remove('active');
         }
     });
+}
+
+function getSystemThemePreference() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
