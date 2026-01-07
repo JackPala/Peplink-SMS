@@ -8,7 +8,7 @@ An Open Source Responsive WebUI for sending and receiving SMS thru Peplink
 
 <picture>
   <source srcset="https://github.com/user-attachments/assets/b9021107-7b2f-4ded-babd-8db485770b72.webp" type="image/webp">
-  <img src="https://github.com/user-attachments/assets/b9021107-7b2f-4ded-babd-8db485770b72" alt="Peplink SMS Bootstrap Frontend UI" width="800">
+  <img src="https://github.com/user-attachments/assets/b9021107-7b2f-4ded-babd-8db485770b72.png" alt="Peplink SMS Bootstrap Frontend UI" width="800">
 </picture>
 
 ## Purpose
