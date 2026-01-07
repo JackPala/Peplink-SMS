@@ -83,6 +83,20 @@ body {
     z-index: 10;
 }
 
+.sidebar-logo {
+    padding: 20px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logo-img {
+    max-width: 100%;
+    height: auto;
+    max-height: 80px;
+    object-fit: contain;
+}
+
 .sidebar-header {
     padding: 20px;
     display: flex;

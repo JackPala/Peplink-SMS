@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="bootstrap-frontend/assets/logos/Peplink-SMS-Logo FULL.png" alt="Peplink SMS Logo" width="600">
+</div>
+
 # Peplink-SMS
 
 An Open Source Responsive WebUI for sending and receiving SMS thru Peplink
