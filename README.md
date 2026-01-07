@@ -59,4 +59,85 @@ The server will listen on http://localhost:3000 (override with `PORT` env). SQLi
 - Once authenticated you land on the messaging UI (`index.html`). Use the ⋮ menu’s Logout option to terminate the HTTP Basic session (browser will show the login prompt again).
 - Health checks live at `/health`, and your saved metadata (sans passwords) can be viewed with an authenticated call to `/api/settings`.
 
+## App API
+
+All API calls are protected by HTTP Basic Auth using the username/password you configured during setup. The examples below assume the app is running on `http://localhost:3000` and that your credentials are `admin:changeme`.
+
+### List All Conversations / Messages
+
+`GET /api/sms` fetches all stored conversations. By default, the backend first syncs with the router, then returns JSON shaped like:
+
+```bash
+curl -u admin:changeme http://localhost:3000/api/sms
+```
+
+Response (truncated):
+
+```json
+{
+  "conversations": [
+    {
+      "sender": "+16152639394",
+      "latestTimestamp": 1734138260,
+      "messages": [
+        {
+          "id": 42,
+          "connId": 6,
+          "timestamp": 1734138260,
+          "direction": "received",
+          "content": "Hey..."
+        }
+      ]
+    }
+  ],
+  "syncSummary": { "connectionsChecked": 1, "messagesStored": 20 },
+  "syncError": null,
+  "syncTimestamp": "2024-12-14T01:24:20.123Z"
+}
+```
+
+To return cached data without polling the router again, add `refresh=false`:
+
+```bash
+curl -u admin:changeme "http://localhost:3000/api/sms?refresh=false"
+```
+
+### List Messages for a Specific Phone Number
+
+There is no dedicated endpoint per contact; instead request `/api/sms` and filter the `conversations` array client-side. For example, using `jq`:
+
+```bash
+curl -u admin:changeme http://localhost:3000/api/sms \
+  | jq '.conversations[] | select(.sender == "+16152639394")'
+```
+
+This returns only the conversation object whose `sender` matches the target phone number.
+
+### Send a Message
+
+`POST /api/sms/send` sends an outbound SMS via the Peplink router. Required JSON fields:
+
+- `recipient`: phone number in `+E164` format (e.g. `+16152639394`)
+- `content`: message body
+- `connId` (optional): specific WAN connection ID to use; omit to auto-select
+
+Example:
+
+```bash
+curl -u admin:changeme \
+  -H "Content-Type: application/json" \
+  -d '{"recipient":"+16152639394","content":"Test from curl","connId":6}' \
+  http://localhost:3000/api/sms/send
+```
+
+Successful requests return `{"message":"SMS sent successfully.","details":{"connId":6,"sentAt":"..."}}`. Any error text from the router will be surfaced in the `message` field.
+
 ## Donate
+
+If this project saves you time or keeps your Peplink SMS workflows humming, consider buying me a coffee (or topping up the SIM data fund). Every donation goes right back into hosting costs, hardware, and future features.  
+
+[**Donate via PayPal**](https://www.paypal.com/donate/?hosted_button_id=EHQUAKSBLUD9C)
+
+Prefer crypto? You can also send BTC to: `3D7wQyEyH8RPUbq2NSZPMobgz6wjenZGM1`
+
+ETH (or any ERC-20 token) donations: `0xe48F3160f442436578de146ADFd635Ff622Dff77`
