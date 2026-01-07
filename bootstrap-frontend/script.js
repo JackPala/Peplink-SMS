@@ -307,6 +307,7 @@ function setupThemeToggle() {
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
             if (currentTheme === 'auto') {
                 applyTheme('auto');
+                updateThemeUI('auto');
             }
         });
     }
