@@ -100,24 +100,9 @@ function setupEventListeners() {
         alert('New message functionality - Would connect to Peplink SMS API');
     });
     
-    // Call button
-    document.getElementById('callBtn').addEventListener('click', function() {
-        alert(`Calling ${currentContact} at ${currentContactPhone}`);
-    });
-    
     // Info button
     document.getElementById('infoBtn').addEventListener('click', function() {
         alert(`Contact Info:\nName: ${currentContact}\nPhone: ${currentContactPhone}`);
-    });
-    
-    // Attach button
-    document.getElementById('attachBtn').addEventListener('click', function() {
-        alert('Attach file functionality - Would integrate with Peplink SMS API');
-    });
-    
-    // Emoji button
-    document.getElementById('emojiBtn').addEventListener('click', function() {
-        alert('Emoji picker would be shown here');
     });
     
     // Theme toggle

@@ -529,7 +529,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
     border: none;
     background: transparent;
     width: 100%;
