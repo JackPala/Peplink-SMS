@@ -12,7 +12,7 @@ An Open Source Responsive WebUI for sending and receiving SMS thru Peplink
 
 - A Peplink Router running v8.0.0 or higher
 - A Linux/MacOS/FreeBSD/Windows device capable of running nodeJS or nodeJS+Docker
-- Clear local traffic path between the Peplink router's port 80/443 and the server running Peplink-SMS
+- Clear local traffic path between the Peplink router's port 80/443 and the server running Peplink-SMS (A Raspberry Pi on the Peplink's LAN, with Zerotier or Tailscale for remote access to the Pi would work fine for this)
 
 ## Bootstrap Frontend
 
